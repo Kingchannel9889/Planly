@@ -49,3 +49,9 @@ example
 # generated native folders
 /ios
 /android
+
+# Not required for the mobile build
+backend/
+design/
+tests/
+compose.yaml

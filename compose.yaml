@@ -1,0 +1,30 @@
+name: planly
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_DB: planly
+      POSTGRES_USER: planly
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    ports:
+      - "127.0.0.1:5432:5432"
+    volumes:
+      - planly_postgres:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U planly -d planly"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+  api:
+    build: ./backend
+    environment:
+      DATABASE_URL: postgresql+psycopg://planly:${POSTGRES_PASSWORD}@db:5432/planly
+      CORS_ORIGINS: http://localhost:8081,http://127.0.0.1:8081
+      COOKIE_SECURE: "false" # Local HTTP only. Production defaults to Secure cookies.
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  planly_postgres:
